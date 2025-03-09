@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import PromptInput from '@/components/PromptInput';
 import ImageSettings from '@/components/ImageSettings';
@@ -8,6 +8,7 @@ import GenerationHistory from '@/components/GenerationHistory';
 import { generateImage } from '@/lib/api';
 import { GeneratedImage, ImageSettings as ImageSettingsType } from '@/lib/types';
 import { toast } from 'sonner';
+import { supabase } from "@/integrations/supabase/client";
 
 const Index = () => {
   const [currentPrompt, setCurrentPrompt] = useState<string>('');
@@ -21,6 +22,47 @@ const Index = () => {
     seed: -1,
   });
   const [generationHistory, setGenerationHistory] = useState<GeneratedImage[]>([]);
+  
+  // Fetch previous generations from Supabase on component mount
+  useEffect(() => {
+    const fetchPreviousGenerations = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('user_images')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(10);
+          
+        if (error) {
+          console.error('Error fetching previous generations:', error);
+          return;
+        }
+        
+        if (data && data.length > 0) {
+          // Transform the data to match our GeneratedImage type
+          const transformedData: GeneratedImage[] = data.map(item => ({
+            id: item.id,
+            prompt: item.prompt,
+            imageUrl: item.image_url,
+            settings: {
+              width: item.width,
+              height: item.height,
+              numInferenceSteps: item.inference_steps,
+              negativePrompt: item.negative_prompt || '',
+              seed: -1, // We don't store the seed in the DB
+            },
+            createdAt: new Date(item.created_at),
+          }));
+          
+          setGenerationHistory(transformedData);
+        }
+      } catch (err) {
+        console.error('Error in fetchPreviousGenerations:', err);
+      }
+    };
+    
+    fetchPreviousGenerations();
+  }, []);
 
   const handleGenerate = async (prompt: string) => {
     setCurrentPrompt(prompt);
@@ -41,10 +83,8 @@ const Index = () => {
       };
       
       setGenerationHistory((prev) => [newImage, ...prev]);
-      toast.success('Image generated successfully!');
     } catch (error) {
       console.error('Error:', error);
-      toast.error('Failed to generate image. Please try again.');
     } finally {
       setIsGenerating(false);
     }
