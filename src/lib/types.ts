@@ -5,6 +5,9 @@ export interface ImageSettings {
   numInferenceSteps: number;
   negativePrompt: string;
   seed: number;
+  fileFormat: 'webp' | 'jpg' | 'png';
+  style: string;
+  model: string;
 }
 
 export interface GeneratedImage {
@@ -21,4 +24,22 @@ export interface ImageDimension {
   aspectRatio: string;
   width: number;
   height: number;
+}
+
+export interface ImageStyle {
+  id: string;
+  name: string;
+  promptAppendix: string;
+}
+
+export interface ImageModel {
+  id: string;
+  name: string;
+  modelId: string;
+  maxSteps: number;
+}
+
+export interface User {
+  id: string;
+  email: string;
 }

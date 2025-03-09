@@ -4,23 +4,34 @@ import { Download, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import Loading from './ui/Loading';
+import { ImageSettings } from '@/lib/types';
 
 interface ImageDisplayProps {
   imageUrl: string | null;
   prompt: string;
   isGenerating: boolean;
+  settings: ImageSettings;
 }
 
-const ImageDisplay: React.FC<ImageDisplayProps> = ({ imageUrl, prompt, isGenerating }) => {
+const ImageDisplay: React.FC<ImageDisplayProps> = ({ 
+  imageUrl, 
+  prompt, 
+  isGenerating,
+  settings
+}) => {
   const [isImageLoaded, setIsImageLoaded] = useState(false);
 
   const handleDownload = () => {
     if (!imageUrl) return;
     
+    const fileFormat = settings.fileFormat || 'webp';
+    const timestamp = new Date().getTime();
+    const filename = `nebius-${timestamp}.${fileFormat}`;
+    
     // Create a temporary link element
     const link = document.createElement('a');
     link.href = imageUrl;
-    link.download = `nebius-${Date.now()}.jpg`;
+    link.download = filename;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

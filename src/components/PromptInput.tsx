@@ -1,13 +1,33 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Wand2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { ImageSettings, ImageStyle } from '@/lib/types';
 
 interface PromptInputProps {
   onGenerate: (prompt: string) => void;
   isGenerating: boolean;
 }
+
+const imageStyles: Record<string, string> = {
+  'none': '',
+  '3d-render': ' in a highly detailed 3D render style, with realistic textures and lighting.',
+  'acrylic': ' painted in an acrylic style, with thick brush strokes and bold colors.',
+  'anime': ' in an anime style, featuring vibrant colors and expressive character design.',
+  'creative': ' in a highly creative and imaginative way, pushing artistic boundaries.',
+  'dynamic': ' with a dynamic and action-packed composition, full of motion and energy.',
+  'fashion': ' in a high-fashion editorial style, featuring elegant poses and stylish outfits.',
+  'game-concept': ' designed as a concept for a next-generation video game.',
+  'graphic-design-3d': ' in a 3D graphic design aesthetic, bold and futuristic.',
+  'illustration': ' as a professional digital illustration, highly detailed and artistic.',
+  'portrait': ' as a beautifully detailed portrait with realistic shading and depth.',
+  'portrait-cinematic': ' in a cinematic portrait style, with dramatic lighting and deep contrast.',
+  'portrait-fashion': ' in a high-fashion portrait style, elegant and editorial.',
+  'ray-traced': ' using ray tracing technology, with ultra-realistic reflections and lighting.',
+  'stock-photo': ' as a high-quality stock photo, professionally composed and well-lit.',
+  'watercolor': ' painted in soft watercolor tones, with delicate brush strokes and a dreamy feel.',
+};
 
 const PromptInput: React.FC<PromptInputProps> = ({ onGenerate, isGenerating }) => {
   const [prompt, setPrompt] = useState('');

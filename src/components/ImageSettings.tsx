@@ -1,10 +1,11 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Slider } from '@/components/ui/slider';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ImageSettings as ImageSettingsType, ImageDimension } from '@/lib/types';
-import { Settings, Minus, Plus, RefreshCw } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ImageSettings as ImageSettingsType, ImageDimension, ImageStyle, ImageModel } from '@/lib/types';
+import { Settings, Minus, Plus, RefreshCw, Palette, FileType, Server } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface ImageSettingsProps {
@@ -19,8 +20,56 @@ const imageDimensions: ImageDimension[] = [
   { id: '16:9', name: 'Wide', aspectRatio: '16:9', width: 1024, height: 576 },
 ];
 
+const imageStyles: ImageStyle[] = [
+  { id: 'none', name: 'None', promptAppendix: '' },
+  { id: '3d-render', name: '3D Render', promptAppendix: ' in a highly detailed 3D render style, with realistic textures and lighting.' },
+  { id: 'acrylic', name: 'Acrylic', promptAppendix: ' painted in an acrylic style, with thick brush strokes and bold colors.' },
+  { id: 'anime', name: 'Anime General', promptAppendix: ' in an anime style, featuring vibrant colors and expressive character design.' },
+  { id: 'creative', name: 'Creative', promptAppendix: ' in a highly creative and imaginative way, pushing artistic boundaries.' },
+  { id: 'dynamic', name: 'Dynamic', promptAppendix: ' with a dynamic and action-packed composition, full of motion and energy.' },
+  { id: 'fashion', name: 'Fashion', promptAppendix: ' in a high-fashion editorial style, featuring elegant poses and stylish outfits.' },
+  { id: 'game-concept', name: 'Game Concept', promptAppendix: ' designed as a concept for a next-generation video game.' },
+  { id: 'graphic-design-3d', name: 'Graphic Design 3D', promptAppendix: ' in a 3D graphic design aesthetic, bold and futuristic.' },
+  { id: 'illustration', name: 'Illustration', promptAppendix: ' as a professional digital illustration, highly detailed and artistic.' },
+  { id: 'portrait', name: 'Portrait', promptAppendix: ' as a beautifully detailed portrait with realistic shading and depth.' },
+  { id: 'portrait-cinematic', name: 'Portrait Cinematic', promptAppendix: ' in a cinematic portrait style, with dramatic lighting and deep contrast.' },
+  { id: 'portrait-fashion', name: 'Portrait Fashion', promptAppendix: ' in a high-fashion portrait style, elegant and editorial.' },
+  { id: 'ray-traced', name: 'Ray Traced', promptAppendix: ' using ray tracing technology, with ultra-realistic reflections and lighting.' },
+  { id: 'stock-photo', name: 'Stock Photo', promptAppendix: ' as a high-quality stock photo, professionally composed and well-lit.' },
+  { id: 'watercolor', name: 'Watercolor', promptAppendix: ' painted in soft watercolor tones, with delicate brush strokes and a dreamy feel.' },
+];
+
+const imageModels: ImageModel[] = [
+  { id: 'sdxl', name: 'Stable Diffusion XL 1.0', modelId: 'stability-ai/sdxl', maxSteps: 64 },
+  { id: 'flux-dev', name: 'Flux.1-dev', modelId: 'black-forest-labs/flux-dev', maxSteps: 50 },
+  { id: 'flux-schnell', name: 'FLUX.1-schnell', modelId: 'black-forest-labs/flux-schnell', maxSteps: 16 },
+];
+
+const fileFormats = [
+  { id: 'webp', name: 'WebP' },
+  { id: 'jpg', name: 'JPG' },
+  { id: 'png', name: 'PNG' },
+];
+
 const ImageSettings: React.FC<ImageSettingsProps> = ({ settings, onSettingsChange }) => {
   const [expanded, setExpanded] = useState(false);
+  const [currentModel, setCurrentModel] = useState<ImageModel>(
+    imageModels.find(model => model.modelId === settings.model) || imageModels[0]
+  );
+
+  useEffect(() => {
+    // Initialize default values if not present
+    if (!settings.fileFormat) {
+      handleSettingsChange('fileFormat', 'webp');
+    }
+    if (!settings.style) {
+      handleSettingsChange('style', 'none');
+    }
+    if (!settings.model) {
+      handleSettingsChange('model', imageModels[0].modelId);
+      setCurrentModel(imageModels[0]);
+    }
+  }, []);
 
   const handleDimensionSelect = (dimension: ImageDimension) => {
     onSettingsChange({
@@ -45,6 +94,26 @@ const ImageSettings: React.FC<ImageSettingsProps> = ({ settings, onSettingsChang
 
   const resetSeed = () => {
     onSettingsChange({ ...settings, seed: -1 });
+  };
+
+  const handleSettingsChange = (key: keyof ImageSettingsType, value: any) => {
+    onSettingsChange({ ...settings, [key]: value });
+    
+    // Handle model change to update max steps
+    if (key === 'model') {
+      const selectedModel = imageModels.find(model => model.modelId === value);
+      if (selectedModel) {
+        setCurrentModel(selectedModel);
+        // Adjust steps if they exceed the new maximum
+        if (settings.numInferenceSteps > selectedModel.maxSteps) {
+          onSettingsChange({ 
+            ...settings, 
+            [key]: value, 
+            numInferenceSteps: selectedModel.maxSteps 
+          });
+        }
+      }
+    }
   };
 
   return (
@@ -86,6 +155,74 @@ const ImageSettings: React.FC<ImageSettingsProps> = ({ settings, onSettingsChang
                 ))}
               </div>
             </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <FileType className="w-4 h-4 text-purple-400" />
+                  <Label className="text-sm text-white/80">File Format</Label>
+                </div>
+                <Select
+                  value={settings.fileFormat || 'webp'}
+                  onValueChange={(value) => handleSettingsChange('fileFormat', value)}
+                >
+                  <SelectTrigger className="bg-white/5 border-white/10">
+                    <SelectValue placeholder="Select format" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {fileFormats.map((format) => (
+                      <SelectItem key={format.id} value={format.id}>
+                        {format.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <Palette className="w-4 h-4 text-purple-400" />
+                  <Label className="text-sm text-white/80">Style</Label>
+                </div>
+                <Select
+                  value={settings.style || 'none'}
+                  onValueChange={(value) => handleSettingsChange('style', value)}
+                >
+                  <SelectTrigger className="bg-white/5 border-white/10">
+                    <SelectValue placeholder="Select style" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {imageStyles.map((style) => (
+                      <SelectItem key={style.id} value={style.id}>
+                        {style.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Server className="w-4 h-4 text-purple-400" />
+                <Label className="text-sm text-white/80">Model</Label>
+              </div>
+              <Select
+                value={settings.model || imageModels[0].modelId}
+                onValueChange={(value) => handleSettingsChange('model', value)}
+              >
+                <SelectTrigger className="bg-white/5 border-white/10">
+                  <SelectValue placeholder="Select model" />
+                </SelectTrigger>
+                <SelectContent>
+                  {imageModels.map((model) => (
+                    <SelectItem key={model.id} value={model.modelId}>
+                      {model.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             
             <div className="space-y-3">
               <div className="flex justify-between items-center">
@@ -96,7 +233,7 @@ const ImageSettings: React.FC<ImageSettingsProps> = ({ settings, onSettingsChang
                 <Slider
                   value={[settings.numInferenceSteps]}
                   min={10}
-                  max={50}
+                  max={currentModel.maxSteps}
                   step={1}
                   onValueChange={handleStepsChange}
                   className="flex-1"
@@ -104,7 +241,7 @@ const ImageSettings: React.FC<ImageSettingsProps> = ({ settings, onSettingsChang
                 <Plus className="w-3 h-3 text-white/60" />
               </div>
               <div className="text-xs text-white/60 text-center">
-                Higher values produce more detailed images but take longer to generate
+                Higher values produce more detailed images but take longer to generate (Max: {currentModel.maxSteps} for {currentModel.name})
               </div>
             </div>
             
