@@ -108,11 +108,22 @@ export const getCurrentUser = async () => {
 };
 
 export const getUserImages = async () => {
-  const { data, error } = await supabase
-    .from('user_images')
-    .select('*')
-    .order('created_at', { ascending: false });
-  
-  if (error) throw error;
-  return data;
+  try {
+    console.log("Fetching user images...");
+    const { data, error } = await supabase
+      .from('user_images')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (error) {
+      console.error("Error fetching user images:", error);
+      throw error;
+    }
+    
+    console.log("Fetched user images:", data?.length || 0);
+    return data || [];
+  } catch (error) {
+    console.error("Error in getUserImages:", error);
+    throw error;
+  }
 };

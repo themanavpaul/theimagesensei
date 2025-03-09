@@ -30,8 +30,9 @@ const Index = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   
-  // Fetch previous generations from Supabase on component mount
+  // Fetch previous generations from Supabase on component mount and when user changes
   useEffect(() => {
+    console.log("User changed, fetching generation history...", user?.id);
     if (user) {
       fetchGenerationHistory();
     }
@@ -41,6 +42,7 @@ const Index = () => {
     if (!user) return;
 
     try {
+      console.log("Fetching generation history...");
       const images = await getUserImages();
       
       if (images && images.length > 0) {
@@ -63,7 +65,11 @@ const Index = () => {
           createdAt: new Date(item.created_at),
         }));
         
+        console.log("Setting generation history:", transformedData.length);
         setGenerationHistory(transformedData);
+      } else {
+        console.log("No images found in history");
+        setGenerationHistory([]);
       }
     } catch (err) {
       console.error('Error in fetchGenerationHistory:', err);
@@ -97,7 +103,7 @@ const Index = () => {
       // Add to history (if it was successful)
       if (results.length > 0) {
         // Refresh history from the database
-        fetchGenerationHistory();
+        await fetchGenerationHistory();
       }
     } catch (error) {
       console.error('Error:', error);
@@ -144,10 +150,12 @@ const Index = () => {
           isGenerating={isGenerating}
           settings={settings}
         />
-        <GenerationHistory 
-          images={generationHistory} 
-          onSelect={handleHistorySelect} 
-        />
+        {user && (
+          <GenerationHistory 
+            images={generationHistory} 
+            onSelect={handleHistorySelect} 
+          />
+        )}
       </main>
       
       <Footer />
