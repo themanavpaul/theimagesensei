@@ -70,6 +70,10 @@ serve(async (req) => {
     const modelId = settings.model || 'stability-ai/sdxl';
     const responseFormat = settings.fileFormat || 'webp';
 
+    // Ensure dimensions are properly specified for the API call
+    const width = settings.width || 1024;
+    const height = settings.height || 1024;
+
     // Call Nebius Studio API
     const response = await fetch('https://api.studio.nebius.com/v1/images/generations', {
       method: 'POST',
@@ -82,8 +86,8 @@ serve(async (req) => {
         response_format: "b64_json",
         extra_body: {
           response_extension: responseFormat,
-          width: settings.width,
-          height: settings.height,
+          width,
+          height,
           num_inference_steps: settings.numInferenceSteps,
           negative_prompt: settings.negativePrompt,
           seed: settings.seed === -1 ? Math.floor(Math.random() * 2147483647) : settings.seed,
@@ -113,8 +117,8 @@ serve(async (req) => {
     await supabaseClient.from('user_images').insert({
       user_id: userId,
       prompt: finalPrompt,
-      width: settings.width,
-      height: settings.height,
+      width,
+      height,
       inference_steps: settings.numInferenceSteps,
       negative_prompt: settings.negativePrompt || null,
       image_url: `data:image/${responseFormat};base64,${imageData}`,

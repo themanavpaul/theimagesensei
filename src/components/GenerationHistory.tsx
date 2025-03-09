@@ -49,7 +49,7 @@ const GenerationHistory: React.FC<GenerationHistoryProps> = ({ images, onSelect 
           {images.map((image) => (
             <div
               key={image.id}
-              className="w-48 shrink-0 glass-morphism rounded-lg overflow-hidden cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-[0_0_15px_rgba(139,92,246,0.2)]"
+              className="w-48 shrink-0 glass-morphism rounded-lg overflow-hidden cursor-pointer"
               onClick={() => onSelect(image)}
             >
               <div className="aspect-square w-full overflow-hidden relative group">
@@ -81,15 +81,15 @@ const GenerationHistory: React.FC<GenerationHistoryProps> = ({ images, onSelect 
                   <p className="text-xs text-white/70 truncate max-w-[80%]">{image.prompt}</p>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Button variant="ghost" size="sm" className="w-6 h-6 p-0">
+                      <Button variant="ghost" size="sm" className="w-6 h-6 p-0 min-w-6">
                         <Info className="w-3 h-3 text-white/50" />
                       </Button>
                     </TooltipTrigger>
-                    <TooltipContent>
+                    <TooltipContent side="top">
                       <div className="text-xs space-y-1">
                         <p>Dimensions: {image.settings.width}x{image.settings.height}</p>
                         <p>Steps: {image.settings.numInferenceSteps}</p>
-                        <p>Model: {image.settings.model || 'SDXL'}</p>
+                        <p>Model: {image.settings.model.split('/').pop() || 'SDXL'}</p>
                         {image.settings.style && image.settings.style !== 'none' && (
                           <p>Style: {image.settings.style}</p>
                         )}
