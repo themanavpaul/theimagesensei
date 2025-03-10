@@ -49,7 +49,7 @@ const Index = () => {
         const transformedData: GeneratedImage[] = images.map(item => ({
           id: item.id,
           prompt: item.prompt,
-          imageUrl: item.image_url,
+          images: [{ imageUrl: item.image_url }], // Convert single imageUrl to array of images
           settings: {
             width: item.width,
             height: item.height,
@@ -98,11 +98,11 @@ const Index = () => {
       
       // Add to history
       if (results.length > 0) {
-        // We'll just add the first image to the history
+        // Create a GeneratedImage with all generated images
         const newImage: GeneratedImage = {
           id: Date.now().toString(),
           prompt: results[0].prompt,
-          imageUrl: results[0].imageUrl,
+          images: results.map(result => ({ imageUrl: result.imageUrl })),
           settings: { ...settings },
           createdAt: new Date(),
         };
@@ -122,7 +122,8 @@ const Index = () => {
 
   const handleHistorySelect = (image: GeneratedImage) => {
     setCurrentPrompt(image.prompt);
-    setCurrentImages([{ imageUrl: image.imageUrl, prompt: image.prompt }]);
+    // Set current images from the history item's images array
+    setCurrentImages(image.images.map(img => ({ imageUrl: img.imageUrl, prompt: image.prompt })));
     setSettings(image.settings);
   };
 
