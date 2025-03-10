@@ -1,69 +1,72 @@
-# Welcome to your Lovable project
+# ImageSensei
 
-## Project info
+ImageSensei is an AI-powered image generation tool that transforms your text prompts into stunning images. Leveraging advanced machine learning models, ImageSensei allows users to create high-quality images with various styles and settings.
 
-**URL**: https://lovable.dev/projects/d25777da-daf7-420b-a43c-235e556630c1
+## Table of Contents
 
-## How can I edit this code?
+- [Installation](#installation)
+- [Usage](#usage)
+- [Features](#features)
+- [Technologies Used](#technologies-used)
+- [Contributing](#contributing)
+- [License](#license)
+- [Contact](#contact)
 
-There are several ways of editing your application.
+## Installation
 
-**Use Lovable**
+To set up the project locally, follow these steps:
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/d25777da-daf7-420b-a43c-235e556630c1) and start prompting.
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/theimagesensei.git
+   cd theimagesensei
+   ```
 
-Changes made via Lovable will be committed automatically to this repo.
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-**Use your preferred IDE**
+3. Set up environment variables:
+   Create a `.env` file in the root directory and add the necessary environment variables.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+4. Start the development server:
+   ```bash
+   npm run dev
+   ```
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## Usage
 
-Follow these steps:
+To use ImageSensei, follow these steps:
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+1. Open the application in your browser.
+2. Enter a text prompt describing the image you want to generate.
+3. Adjust the settings such as image dimensions, style, and model.
+4. Click the "Generate" button to create your image.
+5. View and download the generated images.
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+## Features
 
-# Step 3: Install the necessary dependencies.
-npm i
+- **Text-to-Image Generation**: Convert text prompts into high-quality images.
+- **Multiple Styles**: Choose from various artistic styles like 3D render, acrylic, anime, and more.
+- **Customizable Settings**: Adjust image dimensions, quality steps, file format, and more.
+- **Generation History**: Save and view previously generated images.
+- **User Authentication**: Sign in to save your generated images and access your creation history.
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+## Technologies Used
 
-**Edit a file directly in GitHub**
+- **React**: Frontend library for building user interfaces.
+- **Tailwind CSS**: Utility-first CSS framework for styling.
+- **Supabase**: Backend as a service for authentication and database management.
+- **Lucide-React**: Icon library for React.
+- **Sonner**: Notification library for React.
+- **Vite**: Build tool for frontend development.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
 
-**Use GitHub Codespaces**
+## License
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
-## What technologies are used for this project?
+## Contact
 
-This project is built with .
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/d25777da-daf7-420b-a43c-235e556630c1) and click on Share -> Publish.
-
-## I want to use a custom domain - is that possible?
-
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+For any questions or feedback, please contact us at [manavpaul27@gmail.com](mailto:manavpaul27@gmail.com).
