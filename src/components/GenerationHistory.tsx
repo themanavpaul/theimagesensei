@@ -60,18 +60,18 @@ const GenerationHistory: React.FC<GenerationHistoryProps> = ({ images, onSelect 
 
   return (
     <TooltipProvider>
-      <div className="w-full max-w-4xl mx-auto mt-12">
-        <div className="flex items-center gap-2 mb-4">
+      <div className="w-full max-w-4xl mx-auto mt-8 sm:mt-12 px-2 sm:px-0">
+        <div className="flex items-center gap-2 mb-3 sm:mb-4 px-2 sm:px-0">
           <Clock className="w-4 h-4 text-purple-400" />
           <h3 className="text-sm font-medium">Recent Generations</h3>
         </div>
         
-        <ScrollArea className="w-full whitespace-nowrap pb-4">
-          <div className="flex space-x-4">
+        <ScrollArea className="w-full whitespace-nowrap pb-2 sm:pb-4">
+          <div className="flex space-x-2 sm:space-x-4 px-2 sm:px-0">
             {images.map((image) => (
               <div
                 key={image.id}
-                className="w-48 shrink-0 glass-morphism rounded-lg overflow-hidden cursor-pointer"
+                className="w-32 xs:w-40 sm:w-48 shrink-0 glass-morphism rounded-lg overflow-hidden cursor-pointer"
                 onClick={() => handleImageClick(image)}
               >
                 <div className="aspect-square w-full overflow-hidden relative group">
@@ -98,12 +98,12 @@ const GenerationHistory: React.FC<GenerationHistoryProps> = ({ images, onSelect 
                     </Tooltip>
                   </div>
                 </div>
-                <div className="p-3">
+                <div className="p-2 sm:p-3">
                   <div className="flex justify-between items-start mb-1">
-                    <p className="text-xs text-white/70 truncate max-w-[80%]">{image.prompt}</p>
+                    <p className="text-[10px] xs:text-xs text-white/70 truncate max-w-[80%]">{image.prompt}</p>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Button variant="ghost" size="sm" className="w-6 h-6 p-0">
+                        <Button variant="ghost" size="sm" className="w-5 h-5 sm:w-6 sm:h-6 p-0">
                           <Info className="w-3 h-3 text-white/50" />
                         </Button>
                       </TooltipTrigger>
@@ -121,7 +121,7 @@ const GenerationHistory: React.FC<GenerationHistoryProps> = ({ images, onSelect 
                       </TooltipContent>
                     </Tooltip>
                   </div>
-                  <p className="text-[10px] text-white/50">{formatDate(image.createdAt)}</p>
+                  <p className="text-[8px] xs:text-[10px] text-white/50">{formatDate(image.createdAt)}</p>
                 </div>
               </div>
             ))}
@@ -129,18 +129,18 @@ const GenerationHistory: React.FC<GenerationHistoryProps> = ({ images, onSelect 
         </ScrollArea>
         
         <Dialog open={selectedImage !== null} onOpenChange={(open) => !open && setSelectedImage(null)}>
-          <DialogContent className="sm:max-w-[800px] glass-morphism border-none text-white">
+          <DialogContent className="sm:max-w-[800px] w-[95vw] max-h-[90vh] overflow-y-auto glass-morphism border-none text-white p-3 sm:p-6">
             <DialogHeader>
               <DialogTitle>Image Details</DialogTitle>
-              <DialogClose className="absolute right-4 top-4 opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none">
+              <DialogClose className="absolute right-3 top-3 opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none">
                 <X className="h-4 w-4" />
                 <span className="sr-only">Close</span>
               </DialogClose>
             </DialogHeader>
             
             {selectedImage && (
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              <div className="space-y-3 sm:space-y-4">
+                <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-4">
                   {selectedImage.images.map((img, index) => (
                     <div key={index} className="relative aspect-square w-full overflow-hidden rounded-md">
                       <img
@@ -152,10 +152,10 @@ const GenerationHistory: React.FC<GenerationHistoryProps> = ({ images, onSelect 
                   ))}
                 </div>
                 
-                <div className="space-y-3">
+                <div className="space-y-2 sm:space-y-3">
                   <div>
-                    <h4 className="text-sm font-medium">Prompt</h4>
-                    <p className="text-sm text-white/70">{selectedImage.prompt}</p>
+                    <h4 className="text-xs sm:text-sm font-medium">Prompt</h4>
+                    <p className="text-xs text-white/70">{selectedImage.prompt}</p>
                   </div>
                   
                   <div className="grid grid-cols-2 gap-2">
@@ -188,7 +188,7 @@ const GenerationHistory: React.FC<GenerationHistoryProps> = ({ images, onSelect 
                   </div>
                 </div>
                 
-                <div className="flex justify-between">
+                <div className="flex flex-col xs:flex-row justify-between gap-2">
                   <Button 
                     variant="ghost" 
                     size="sm"
