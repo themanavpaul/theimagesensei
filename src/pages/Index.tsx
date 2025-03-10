@@ -2,12 +2,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 import PromptInput from '@/components/PromptInput';
 import ImageSettings from '@/components/ImageSettings';
 import ImageDisplay from '@/components/ImageDisplay';
 import GenerationHistory from '@/components/GenerationHistory';
-import { generateImage, generateMultipleImages, getUserImages } from '@/lib/api';
+import { generateImage, getUserImages } from '@/lib/api';
 import { GeneratedImage, ImageSettings as ImageSettingsType } from '@/lib/types';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
@@ -15,7 +14,7 @@ import { useAuth } from '@/contexts/AuthContext';
 const Index = () => {
   const [currentPrompt, setCurrentPrompt] = useState<string>('');
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
-  const [currentImages, setCurrentImages] = useState<Array<{imageUrl: string, prompt: string}>>([]);
+  const [currentImage, setCurrentImage] = useState<string | null>(null);
   const [settings, setSettings] = useState<ImageSettingsType>({
     width: 1024,
     height: 1024,
@@ -30,9 +29,8 @@ const Index = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   
-  // Fetch previous generations from Supabase on component mount and when user changes
+  // Fetch previous generations from Supabase on component mount
   useEffect(() => {
-    console.log("User changed, fetching generation history...", user?.id);
     if (user) {
       fetchGenerationHistory();
     }
@@ -42,7 +40,6 @@ const Index = () => {
     if (!user) return;
 
     try {
-      console.log("Fetching generation history...");
       const images = await getUserImages();
       
       if (images && images.length > 0) {
@@ -65,11 +62,7 @@ const Index = () => {
           createdAt: new Date(item.created_at),
         }));
         
-        console.log("Setting generation history:", transformedData.length);
         setGenerationHistory(transformedData);
-      } else {
-        console.log("No images found in history");
-        setGenerationHistory([]);
       }
     } catch (err) {
       console.error('Error in fetchGenerationHistory:', err);
@@ -77,7 +70,7 @@ const Index = () => {
     }
   };
 
-  const handleGenerate = async (prompt: string, imageCount: number = 1) => {
+  const handleGenerate = async (prompt: string) => {
     if (!user) {
       toast.error('Please sign in to generate images');
       navigate('/auth');
@@ -86,25 +79,26 @@ const Index = () => {
 
     setCurrentPrompt(prompt);
     setIsGenerating(true);
-    setCurrentImages([]);
+    setCurrentImage(null);
     
     try {
-      let results;
-      if (imageCount > 1) {
-        results = await generateMultipleImages(prompt, settings, imageCount);
-      } else {
-        const result = await generateImage(prompt, settings);
-        results = [result];
-      }
+      const { imageUrl, prompt: finalPrompt } = await generateImage(prompt, settings);
+      setCurrentImage(imageUrl);
+      setCurrentPrompt(finalPrompt);
       
-      setCurrentImages(results);
-      setCurrentPrompt(results[0]?.prompt || prompt);
+      // Add to history
+      const newImage: GeneratedImage = {
+        id: Date.now().toString(),
+        prompt: finalPrompt,
+        imageUrl,
+        settings: { ...settings },
+        createdAt: new Date(),
+      };
       
-      // Add to history (if it was successful)
-      if (results.length > 0) {
-        // Refresh history from the database
-        await fetchGenerationHistory();
-      }
+      setGenerationHistory((prev) => [newImage, ...prev]);
+      
+      // Refresh history from the database
+      fetchGenerationHistory();
     } catch (error) {
       console.error('Error:', error);
     } finally {
@@ -114,21 +108,21 @@ const Index = () => {
 
   const handleHistorySelect = (image: GeneratedImage) => {
     setCurrentPrompt(image.prompt);
-    setCurrentImages([{ imageUrl: image.imageUrl, prompt: image.prompt }]);
+    setCurrentImage(image.imageUrl);
     setSettings(image.settings);
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen pb-16">
       <Header />
       
-      <main className="container px-4 mx-auto flex-1">
+      <main className="container px-4 mx-auto">
         <section className="mb-12 text-center max-w-2xl mx-auto">
           <h2 className="text-3xl font-light tracking-tight text-gradient mb-3">
             Transform Your Words into Art
           </h2>
           <p className="text-white/70">
-            Create stunning AI-generated images using ImageSensei's powerful image generation technology.
+            Create stunning AI-generated images using Nebius Studio's powerful image generation technology.
           </p>
           {!user && !loading && (
             <div className="mt-4">
@@ -145,20 +139,16 @@ const Index = () => {
         <PromptInput onGenerate={handleGenerate} isGenerating={isGenerating} />
         <ImageSettings settings={settings} onSettingsChange={setSettings} />
         <ImageDisplay 
-          images={currentImages} 
+          imageUrl={currentImage} 
           prompt={currentPrompt} 
           isGenerating={isGenerating}
           settings={settings}
         />
-        {user && (
-          <GenerationHistory 
-            images={generationHistory} 
-            onSelect={handleHistorySelect} 
-          />
-        )}
+        <GenerationHistory 
+          images={generationHistory} 
+          onSelect={handleHistorySelect} 
+        />
       </main>
-      
-      <Footer />
     </div>
   );
 };
