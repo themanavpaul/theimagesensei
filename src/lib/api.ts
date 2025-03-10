@@ -1,4 +1,3 @@
-
 import { toast } from "sonner";
 import { ImageSettings } from "./types";
 import { supabase } from "@/integrations/supabase/client";
@@ -47,7 +46,42 @@ export const generateImage = async (
   }
 };
 
-// Add authentication functions
+export const generateMultipleImages = async (
+  prompt: string,
+  settings: ImageSettings,
+  count: number,
+  onProgress?: (current: number, total: number) => void
+): Promise<Array<{ imageUrl: string, prompt: string }>> => {
+  const results = [];
+  
+  for (let i = 0; i < count; i++) {
+    // Call the progress callback if provided
+    if (onProgress) {
+      onProgress(i, count);
+    }
+    
+    // Generate a unique seed for each image if not specified
+    const imageSeed = settings.seed === -1 
+      ? Math.floor(Math.random() * 2147483647) 
+      : settings.seed + i; // Increment seed for variation
+    
+    const imageSettings = {
+      ...settings,
+      seed: imageSeed
+    };
+    
+    try {
+      const result = await generateImage(prompt, imageSettings);
+      results.push(result);
+    } catch (error) {
+      console.error(`Error generating image ${i+1}/${count}:`, error);
+      // Continue with the next image even if one fails
+    }
+  }
+  
+  return results;
+};
+
 export const signUp = async (email: string, password: string) => {
   const { data, error } = await supabase.auth.signUp({
     email,

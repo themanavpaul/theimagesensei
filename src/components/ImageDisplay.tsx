@@ -7,26 +7,33 @@ import Loading from './ui/Loading';
 import { ImageSettings } from '@/lib/types';
 
 interface ImageDisplayProps {
-  imageUrl: string | null;
+  images: { imageUrl: string; prompt: string }[];
   prompt: string;
   isGenerating: boolean;
   settings: ImageSettings;
 }
 
 const ImageDisplay: React.FC<ImageDisplayProps> = ({ 
-  imageUrl, 
+  images, 
   prompt, 
   isGenerating,
   settings
 }) => {
-  const [isImageLoaded, setIsImageLoaded] = useState(false);
+  const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
 
-  const handleDownload = () => {
+  const handleImageLoad = (imageUrl: string) => {
+    setLoadedImages(prev => ({
+      ...prev,
+      [imageUrl]: true
+    }));
+  };
+
+  const handleDownload = (imageUrl: string) => {
     if (!imageUrl) return;
     
     const fileFormat = settings.fileFormat || 'webp';
     const timestamp = new Date().getTime();
-    const filename = `nebius-${timestamp}.${fileFormat}`;
+    const filename = `imagesensei-${timestamp}.${fileFormat}`;
     
     // Create a temporary link element
     const link = document.createElement('a');
@@ -39,12 +46,12 @@ const ImageDisplay: React.FC<ImageDisplayProps> = ({
     toast.success('Image downloaded successfully');
   };
 
-  const handleShare = () => {
+  const handleShare = (imageUrl: string) => {
     if (!imageUrl) return;
     
     if (navigator.share) {
       navigator.share({
-        title: 'Image generated with Nebius Studio',
+        title: 'Image generated with ImageSensei',
         text: prompt,
         url: imageUrl
       })
@@ -70,46 +77,50 @@ const ImageDisplay: React.FC<ImageDisplayProps> = ({
               Transforming your prompt into a beautiful image
             </p>
           </div>
-        ) : imageUrl ? (
-          <div className="relative group">
-            <div className={`aspect-square w-full bg-black/30 transition-opacity duration-500 ${isImageLoaded ? 'opacity-100' : 'opacity-0'}`}>
-              <img
-                src={imageUrl}
-                alt={prompt}
-                className="w-full h-full object-cover"
-                onLoad={() => setIsImageLoaded(true)}
-              />
-            </div>
-            
-            {!isImageLoaded && (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <Loading size="lg" />
-              </div>
-            )}
-            
-            <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              <div className="flex justify-between items-end">
-                <p className="text-sm text-white/90 line-clamp-2 max-w-[80%]">{prompt}</p>
-                <div className="flex gap-2">
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="bg-white/10 hover:bg-white/20 rounded-full w-8 h-8 p-0"
-                    onClick={handleDownload}
-                  >
-                    <Download className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="bg-white/10 hover:bg-white/20 rounded-full w-8 h-8 p-0"
-                    onClick={handleShare}
-                  >
-                    <Share2 className="w-4 h-4" />
-                  </Button>
+        ) : images.length > 0 ? (
+          <div className={`grid grid-cols-1 ${images.length > 1 ? 'md:grid-cols-2' : ''} gap-2 p-2`}>
+            {images.map((image, index) => (
+              <div key={index} className="relative group aspect-square">
+                <div className={`w-full h-full bg-black/30 transition-opacity duration-500 ${loadedImages[image.imageUrl] ? 'opacity-100' : 'opacity-0'}`}>
+                  <img
+                    src={image.imageUrl}
+                    alt={prompt}
+                    className="w-full h-full object-cover"
+                    onLoad={() => handleImageLoad(image.imageUrl)}
+                  />
+                </div>
+                
+                {!loadedImages[image.imageUrl] && (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Loading size="lg" />
+                  </div>
+                )}
+                
+                <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <div className="flex justify-between items-end">
+                    <p className="text-sm text-white/90 line-clamp-2 max-w-[80%]">{prompt}</p>
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="bg-white/10 hover:bg-white/20 rounded-full w-8 h-8 p-0"
+                        onClick={() => handleDownload(image.imageUrl)}
+                      >
+                        <Download className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="bg-white/10 hover:bg-white/20 rounded-full w-8 h-8 p-0"
+                        onClick={() => handleShare(image.imageUrl)}
+                      >
+                        <Share2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
+            ))}
           </div>
         ) : (
           <div className="aspect-square w-full flex flex-col items-center justify-center p-8">
