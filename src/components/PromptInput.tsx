@@ -62,7 +62,7 @@ const PromptInput: React.FC<PromptInputProps> = ({ onGenerate, isGenerating }) =
               <select
                 value={numImages}
                 onChange={(e) => setNumImages(Number(e.target.value))}
-                className="bg-transparent text-white border-none outline-none"
+                className="bg-black/40 text-white border-none outline-none rounded px-2 py-1"
                 disabled={isGenerating}
               >
                 <option value={1}>1</option>

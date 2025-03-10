@@ -13,7 +13,7 @@ export interface ImageSettings {
 export interface GeneratedImage {
   id: string;
   prompt: string;
-  imageUrl: string;
+  images: Array<{ imageUrl: string }>;  // Changed from single imageUrl to array of images
   settings: ImageSettings;
   createdAt: Date;
 }

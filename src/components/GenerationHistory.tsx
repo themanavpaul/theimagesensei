@@ -15,7 +15,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
   DialogClose
 } from "@/components/ui/dialog";
 import { toast } from 'sonner';
@@ -77,7 +76,7 @@ const GenerationHistory: React.FC<GenerationHistoryProps> = ({ images, onSelect 
               >
                 <div className="aspect-square w-full overflow-hidden relative group">
                   <img
-                    src={image.imageUrl}
+                    src={image.images[0].imageUrl}
                     alt={image.prompt}
                     className="w-full h-full object-cover"
                   />
@@ -110,6 +109,7 @@ const GenerationHistory: React.FC<GenerationHistoryProps> = ({ images, onSelect 
                       </TooltipTrigger>
                       <TooltipContent>
                         <div className="text-xs space-y-1">
+                          <p>Images: {image.images.length}</p>
                           <p>Dimensions: {image.settings.width}x{image.settings.height}</p>
                           <p>Format: {image.settings.fileFormat}</p>
                           <p>Steps: {image.settings.numInferenceSteps}</p>
@@ -129,7 +129,7 @@ const GenerationHistory: React.FC<GenerationHistoryProps> = ({ images, onSelect 
         </ScrollArea>
         
         <Dialog open={selectedImage !== null} onOpenChange={(open) => !open && setSelectedImage(null)}>
-          <DialogContent className="sm:max-w-[500px] glass-morphism border-none text-white">
+          <DialogContent className="sm:max-w-[800px] glass-morphism border-none text-white">
             <DialogHeader>
               <DialogTitle>Image Details</DialogTitle>
               <DialogClose className="absolute right-4 top-4 opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none">
@@ -140,12 +140,16 @@ const GenerationHistory: React.FC<GenerationHistoryProps> = ({ images, onSelect 
             
             {selectedImage && (
               <div className="space-y-4">
-                <div className="relative aspect-square w-full overflow-hidden rounded-md">
-                  <img
-                    src={selectedImage.imageUrl}
-                    alt={selectedImage.prompt}
-                    className="w-full h-full object-cover"
-                  />
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {selectedImage.images.map((img, index) => (
+                    <div key={index} className="relative aspect-square w-full overflow-hidden rounded-md">
+                      <img
+                        src={img.imageUrl}
+                        alt={`${selectedImage.prompt} - ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  ))}
                 </div>
                 
                 <div className="space-y-3">
