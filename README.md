@@ -1,6 +1,6 @@
 # ✨ ImageSensei - AI Image Generator
 <br>
-ImageSensei is an AI-powered image generation tool that transforms your text prompts into stunning images. Leveraging advanced machine learning models, ImageSensei allows users to create high-quality images with various styles and settings.
+ImageSensei is an AI-powered image generation tool that transforms your text prompts into stunning images. Leveraging advanced machine learning models, ImageSensei allows users to create high-quality images with various styles and settings. <br>
 <br>
 
 **Website**: https://theimagesensei.lovable.app/
